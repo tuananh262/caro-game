@@ -1,60 +1,43 @@
 import pygame
-import random
 import math
+from constans import BOARD_SIZE, SQUARE_SIZE, BLACK, RED
 
-
-# initialize pygame
 pygame.init()
-
-# set the dimensions of the window
-WINDOW_WIDTH = 600
-WINDOW_HEIGHT = 600
-BOARD_SIZE = 15
-SQUARE_SIZE = WINDOW_WIDTH // BOARD_SIZE
-
-# set the colors
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GRAY = (128, 128, 128)
-RED = (255, 0, 0)
-
 # set the font
 FONT_SIZE = 48
 font = pygame.font.SysFont('calibri', FONT_SIZE)
 
-# create the window
-window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
-# create the board
-board = [[' ' for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
+def initializeBoard():
+    return [[' ' for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
 
-# set the starting player
-current_player = 'X'
 
-# set the game state
-game_over = False
-winner = None
+def initialGame():
+    # initialize pygame: game_over = false, winner = none, board = emptyBoard
+    return False, None, initializeBoard()
+
 
 # define the maximum depth of the search tree
 MAX_DEPTH = 1
 
-# draw t`he board
-def draw_board():
+
+def drawBoard(board, SCREEN):
     for i in range(BOARD_SIZE):
         for j in range(BOARD_SIZE):
-            rect = pygame.Rect(j * SQUARE_SIZE, i * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
-            pygame.draw.rect(window, BLACK, rect, 1)
+            rect = pygame.Rect(j * SQUARE_SIZE, i *
+                               SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE)
+            pygame.draw.rect(SCREEN, BLACK, rect, 1)
             if board[i][j] == 'X':
                 text = font.render('X', True, RED)
                 text_rect = text.get_rect(center=rect.center)
-                window.blit(text, text_rect)
+                SCREEN.blit(text, text_rect)
             elif board[i][j] == 'O':
                 text = font.render('O', True, RED)
                 text_rect = text.get_rect(center=rect.center)
-                window.blit(text, text_rect)
+                SCREEN.blit(text, text_rect)
 
-# check for a win
-def check_win(player):
+
+def checkWin(board, player):
     for i in range(BOARD_SIZE):
         for j in range(BOARD_SIZE):
             if board[i][j] == player:
@@ -94,33 +77,35 @@ def check_win(player):
 
 
 # function to check if the game is tied
-def check_tie():
-     for i in range(BOARD_SIZE):
-         for j in range(BOARD_SIZE):
-             if board[i][j] == ' ':
-                 return False
-     return True
+def checkTie(board):
+    for i in range(BOARD_SIZE):
+        for j in range(BOARD_SIZE):
+            if board[i][j] == ' ':
+                return False
+    return True
 
-def score_board():
-    if check_win('O'):
+
+def scoreBoard(board):
+    if checkWin(board, 'O'):
         return 1
-    elif check_win('X'):
+    elif checkWin(board, 'X'):
         return -1
     else:
         return 0
 
-def minimax(depth, alpha, beta, is_maximizing):
-    score = score_board()
+
+def minimax(board, depth, alpha, beta, is_maximizing):
+    score = scoreBoard(board)
     if score != 0 or depth == MAX_DEPTH:
         return score
-    
+
     if is_maximizing:
         max_score = -math.inf
         for i in range(BOARD_SIZE):
             for j in range(BOARD_SIZE):
                 if board[i][j] == ' ':
                     board[i][j] = 'O'
-                    score = minimax(depth+1, alpha, beta, False)
+                    score = minimax(board, depth+1, alpha, beta, False)
                     board[i][j] = ' '
                     max_score = max(max_score, score)
                     alpha = max(alpha, score)
@@ -133,7 +118,7 @@ def minimax(depth, alpha, beta, is_maximizing):
             for j in range(BOARD_SIZE):
                 if board[i][j] == ' ':
                     board[i][j] = 'X'
-                    score = minimax(depth+1, alpha, beta, True)
+                    score = minimax(board, depth+1, alpha, beta, True)
                     board[i][j] = ' '
                     min_score = min(min_score, score)
                     beta = min(beta, score)
@@ -141,68 +126,17 @@ def minimax(depth, alpha, beta, is_maximizing):
                         break
         return min_score
 
-def bot_move():
+
+def botMove(board):
     best_score = -math.inf
     best_move = None
     for i in range(BOARD_SIZE):
         for j in range(BOARD_SIZE):
             if board[i][j] == ' ':
                 board[i][j] = 'O'
-                score = minimax(0, -math.inf, math.inf, False)
+                score = minimax(board, 0, -math.inf, math.inf, False)
                 board[i][j] = ' '
                 if score > best_score:
                     best_score = score
                     best_move = (i, j)
     board[best_move[0]][best_move[1]] = 'O'
-
-# main game loop
-while not game_over:
-    # handle events
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            game_over = True
-        elif event.type == pygame.MOUSEBUTTONDOWN and current_player == 'X':
-            # get the position of the mouse click
-            pos = pygame.mouse.get_pos()
-            row = pos[1] // SQUARE_SIZE
-            col = pos[0] // SQUARE_SIZE
-            # place the player's piece on the board
-            if board[row][col] == ' ':
-                board[row][col] = 'X'
-                # check if the player has won
-                if check_win('X'):
-                    winner = 'X'
-                    game_over = True
-                # check if the game is tied
-                elif check_tie():
-                    game_over = True
-                # switch to the bot's turn
-                current_player = 'O'
-        elif current_player == 'O':
-            # have the bot make a move
-            bot_move()
-            # check if the bot has won
-            if check_win('O'):
-                winner = 'O'
-                game_over = True
-            # check if the game is tied
-            elif check_tie():
-                game_over = True
-            # switch to the player's turn
-            current_player = 'X'
-    
-    # draw the board
-    window.fill(WHITE)
-    draw_board()
-    
-    # check for a winner
-    if winner is not None:
-        text = font.render(f'{winner} wins!', True, RED)
-        text_rect = text.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT//2))
-        window.blit(text, text_rect)
-    
-    # update the display
-    pygame.display.update()
-
-# quit pygame
-pygame.quit()
