@@ -2,7 +2,7 @@ import pygame, sys
 import os
 os.environ['SDL_VIDEO_CENTERED'] = '1'  # Set the position of the game window to the center of the screen
 from button import Button
-# Import your game module
+# Import game module
 from nhetvao import run_game
 import random
 import math
@@ -37,8 +37,7 @@ def INSTRUCTION():
         INSTRUCTION_RECT = INSTRUCTION_TEXT.get_rect(center=(450, 260))
         SCREEN.blit(INSTRUCTION_TEXT, INSTRUCTION_RECT)
 
-        INSTRUCTION_BACK = Button(image=None, pos=(450, 600), 
-                            text_input="BACK", font=get_font(75), base_color="Black", hovering_color="Green")
+        INSTRUCTION_BACK = Button(image=None, pos=(450, 600), text_input="BACK", font=get_font(75), base_color="Black", hovering_color="Green")
 
         INSTRUCTION_BACK.changeColor(INSTRUCTION_MOUSE_POS)
         INSTRUCTION_BACK.update(SCREEN)

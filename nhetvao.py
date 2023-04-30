@@ -1,7 +1,7 @@
 import pygame
 import random
 import math
-
+from button import Button
 
 # initialize pygame
 pygame.init()
@@ -9,7 +9,7 @@ pygame.init()
 # set the dimensions of the window
 WINDOW_WIDTH = 900
 WINDOW_HEIGHT = 900
-BOARD_SIZE = 7
+BOARD_SIZE = 5
 SQUARE_SIZE = WINDOW_WIDTH // BOARD_SIZE
 
 # set the colors
@@ -21,6 +21,9 @@ RED = (255, 0, 0)
 # set the font
 FONT_SIZE = 48
 font = pygame.font.SysFont('calibri', FONT_SIZE)
+
+def get_font(size): # Returns Press-Start-2P in the desired size
+    return pygame.font.Font("assets/font.ttf", size)
 
 # create the window
 window = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -157,14 +160,17 @@ def bot_move():
 
 def run_game():
     game_over = False
-    current_player = 'X'
+    # current_player = 'X'
     winner = None
-
+    window.fill(WHITE)
+    
     while not game_over:
+        draw_board()
+        pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
-            elif event.type == pygame.MOUSEBUTTONDOWN and current_player == 'X':
+            elif event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 row = pos[1] // SQUARE_SIZE
                 col = pos[0] // SQUARE_SIZE
@@ -173,27 +179,56 @@ def run_game():
                     if check_win('X'):
                         winner = 'X'
                         game_over = True
+                        break
                     elif check_tie():
                         game_over = True
-                    current_player = 'O'
-            elif current_player == 'O':
-                bot_move()
-                if check_win('O'):
-                    winner = 'O'
-                    game_over = True
-                elif check_tie():
-                    game_over = True
-                current_player = 'X'
+                        break
+                    bot_move()
+                    if check_win('O'):
+                        winner = 'O'
+                        game_over = True
+                    elif check_tie():
+                        game_over = True
+    mouse_pos=pygame.mouse.get_pos()
+    window.fill(WHITE) 
+    if winner is not None:
+        WIN = Button(image=None, pos=(450, 300), text_input=winner+" WIN", font=get_font(75), base_color="RED", hovering_color=None)
+        WIN.update(window)
+        REPLAY = Button(image=None, pos=(450, 450), text_input="REPLAY", font=get_font(75), base_color="Yellow", hovering_color="Grey")
+        REPLAY.changeColor(mouse_pos)
+        REPLAY.update(window)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if REPLAY.checkForInput(mouse_pos):
+                    run_game()
+        BACK = Button(image=None, pos=(450, 600), text_input="BACK", font=get_font(75), base_color="Black", hovering_color="Grey")
+        BACK.changeColor(mouse_pos)
+        BACK.update(window)
 
-        window.fill(WHITE)
-        draw_board()
-
-        if winner is not None:
-            text = font.render(f'{winner} wins!', True, RED)
-            text_rect = text.get_rect(center=(WINDOW_WIDTH//2, WINDOW_HEIGHT//2))
-            window.blit(text, text_rect)
+        pygame.display.update()
+        
+    else:
+        TIED = Button(image=None, pos=(450, 300), text_input="TIED", font=get_font(75), base_color="Blue", hovering_color=None)
+        TIED.update(window)
+        REPLAY = Button(image=None, pos=(450, 450), text_input="REPLAY", font=get_font(75), base_color="Yellow", hovering_color="Grey")
+        REPLAY.changeColor(mouse_pos)
+        REPLAY.update(window)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if REPLAY.checkForInput(mouse_pos):
+                    run_game()
+        BACK = Button(image=None, pos=(450, 600), text_input="BACK", font=get_font(75), base_color="Black", hovering_color="Grey")
+        BACK.changeColor(mouse_pos)
+        BACK.update(window)
         
         pygame.display.update()
-
+    pygame.display.update()
+    pygame.time.delay(5000)
     pygame.quit()
-run_game()
+# run_game()
