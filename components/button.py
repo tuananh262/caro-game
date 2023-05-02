@@ -1,10 +1,9 @@
 import pygame
-from constans import WHITE, PRIMARY_COLOR, DEFAULT_FONT_SIZE, GRAY
+from constans import WHITE, BLACK, GRAY, PRIMARY_COLOR, DEFAULT_FONT_SIZE, SMALL_FONT_SIZE, BIG_FONT_SIZE
 
 
 def get_font(size):  # Returns Press-Start-2P in the desired size
     return pygame.font.Font("assets/font.ttf", size)
-
 
 class Button():
     def __init__(self, pos=(0, 0), text_input="", font_size=DEFAULT_FONT_SIZE, text_color=WHITE, hovering_color=None, background_color=None, image=None):
@@ -19,7 +18,7 @@ class Button():
                 pygame.image.load(image), self.size), (0, 0))
         elif background_color is not None:
             self.surface.fill(background_color)
-        self.surface.blit(self.text, (4, 4))
+        self.surface.blit(self.text, (0, 0))
 
     def update(self, screen):
         screen.blit(self.surface, self.text_rect)
@@ -40,7 +39,7 @@ class Button():
         else:
             self.text = self.font.render(
                 self.text_input, True, self.text_color)
-        self.surface.blit(self.text, (4, 4))
+        self.surface.blit(self.text, (0, 0))
         self.update(screen)
 
 
@@ -50,3 +49,15 @@ def createPrimaryButton(pos, text_input):
 
 def createSecondaryButton(pos, text_input):
     return Button(pos=pos, text_input=text_input, text_color=WHITE, hovering_color=PRIMARY_COLOR)
+
+
+def createDefaultText(pos, text_input, text_color=BLACK, background_color=None):
+    return Button(pos=pos, text_input=text_input, text_color=text_color, background_color=background_color, font_size=DEFAULT_FONT_SIZE)
+
+
+def createSmallText(pos, text_input, text_color=BLACK, background_color=None):
+    return Button(pos=pos, text_input=text_input, text_color=text_color, background_color=background_color, font_size=SMALL_FONT_SIZE)
+
+
+def createBigText(pos, text_input, text_color=BLACK, background_color=None):
+    return Button(pos=pos, text_input=text_input, text_color=text_color, background_color=background_color, font_size=BIG_FONT_SIZE)
